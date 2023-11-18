@@ -12,9 +12,14 @@ capture = cv2.VideoCapture(0)
 targetLimbs = []
 
 
-
-def saveLimbs(lmbList):
-    pass
+def limb_save(lmList):
+    file = open("limb_save.txt", "w")
+    for limb in lmList:
+        if limb != lmList[-1]:
+            file.write(str(limb) + "\n")
+        else:
+            file.write(str(limb))
+    file.close()
 
 while True:
     success, img = capture.read()
@@ -57,18 +62,6 @@ while True:
         new_heart_x = ((1-heartDist)*shoulder_mid_x) + (heartDist*hip_mid_x)
         new_heart_y = ((1-heartDist)*shoulder_mid_y) + (heartDist*hip_mid_y)
         key = cv2.pollKey()
-
-        def limb_save(lmList):
-            file = open("limb_save.txt", "w")
-            for limb in lmList:
-                if limb != lmList[-1]:
-                    file.write(str(limb) + "\n")
-                else: file.write(str(limb))
-            file.close()
-
-
-        pass
-
 
         if (key == 115):
             print("Saving Data")
