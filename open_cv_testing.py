@@ -9,8 +9,9 @@ detector = PoseDetector()
 
 # open camera
 capture = cv2.VideoCapture(0)
-("0: (10,20,20)"
- "1: ")
+targetLimbs = []
+
+
 
 def saveLimbs(lmbList):
     pass
