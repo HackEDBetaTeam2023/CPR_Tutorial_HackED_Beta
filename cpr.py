@@ -2,7 +2,9 @@ from flask import Flask, render_template, Response
 import cv2
 from cvzone.PoseModule import PoseDetector
 
-app = Flask(__name__)
+app = Flask(__name__, static_url_path='',
+                  static_folder='build',
+                  template_folder='build')
 
 detector = PoseDetector()
 
