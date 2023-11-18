@@ -58,8 +58,21 @@ while True:
         new_heart_y = ((1-heartDist)*shoulder_mid_y) + (heartDist*hip_mid_y)
         key = cv2.pollKey()
 
+        def limb_save(lmList):
+            file = open("limb_save.txt", "w")
+            for limb in lmList:
+                if limb != lmList[-1]:
+                    file.write(str(limb) + "\n")
+                else: file.write(str(limb))
+            file.close()
+
+
+        pass
+
+
         if (key == 115):
             print("Saving Data")
+            limb_save(lmList)
 
         #print(heart_y)# Adjust 20 as needed
         line = cv2.line(img, (shoulder_mid_x, shoulder_mid_y), (hip_mid_x, hip_mid_y), (255, 200, 200), 5)
@@ -69,6 +82,7 @@ while True:
     cv2.imshow("Image", img)
     if cv2.waitKey(1) & 0xFF == 27:
         break
+
 
 capture.release()
 cv2.destroyAllWindows()
