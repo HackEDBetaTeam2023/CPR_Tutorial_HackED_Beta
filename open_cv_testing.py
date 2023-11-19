@@ -1,18 +1,17 @@
 # Using Opencv to make a better understanding to citizens how to do a CPR in realtime.
 import time
-
 import cv2
-
 from cvzone.PoseModule import PoseDetector
-
 import math
 detector = PoseDetector()
 
-# open camera
 capture = cv2.VideoCapture(0)
 targetLimbs = []
-
-
+deltaTime = 0.0
+counter = 5.0
+gameState = 0
+didWin = "Congratulations"
+accuracy = 0
 # LIMBS TO SHOW FOR DEMO: 25 26 23 24 13 14 11 12 0
 
 def limb_load():
@@ -30,25 +29,18 @@ minHandDistance = 50
 rightHandPos = [0, 0]
 leftHandPos = [0, 0]
 
+rightBarPos = [0,0]
+leftBarPos = [0,0]
+
 nextHandVel = -1.0
 handVelocity = 0.0
 
 prevRightHandPos = [0,0]
 prevLeftHandPos = [0,0]
+handLineOffset = 0.0
 def handsTogether() -> bool:
     dist = math.sqrt((rightHandPos[0] - leftHandPos[0])**2 + (rightHandPos[1] - leftHandPos[1])**2)
     return dist < minHandDistance
-
-def calculateHandVelocity():
-    global handVelocity
-    global prevLeftHandPos
-    global prevRightHandPos
-    distance_x_r = abs(rightHandPos[0] - prevRightHandPos[0])
-    distance_y_r = abs(rightHandPos[1] - prevRightHandPos[1])
-    handVelocity = distance_y_r/1
-    prevRightHandPos = rightHandPos
-    prevLeftHandPos = leftHandPos
-
 def limb_save(lmList):
     file = open("limb_save.txt", "w")
     for limb in lmList:
@@ -57,34 +49,56 @@ def limb_save(lmList):
         else:
             file.write(str(limb))
     file.close()
+def drawHandLine(img):
+    global handLineOffset
+    handLineOffset += 23.0 * (deltaTime*25)
+    if (handLineOffset > 360):
+        handLineOffset = 0
+    pos = int(math.cos(math.radians(handLineOffset)) * 15)
+    rightBarPos[0] = 100
+    rightBarPos[1] = 225 + pos
+    leftBarPos[0] = 275
+    leftBarPos[1] = 225 + pos
+    barColor = (255,255,255)
+    if True:
+        barColor = (61,235,69)
 
-def skeleton_user_in_line(limb:tuple[int,(int,int)]):
+    cv2.line(img, (100, 225 + (pos)), (275, 225 + (pos)), barColor, 2)
+    cv2.circle(img, (int(leftBarPos[0]), int(leftBarPos[1])), 10, barColor, -1)
+    cv2.circle(img, (int(rightBarPos[0]), int(rightBarPos[1])), 10, barColor, -1)
 
-    error = False
-    for item in limb:
-        index =
-        distance_x = abs(item[0] - lmList[?])
-        distance_y = abs(item[1] - lmList[?])
-        if distance_x > 30 or  distance_y > 30:
-            error = True
-    if error != 0:
-        return False
-    else: return True
-
-
+cv2.namedWindow('Frame', cv2.WINDOW_NORMAL)
 while True:
+    currentTime = time.time()
     success, img = capture.read()
     if not success:
         continue
 
-    skeleton()
-
     img = detector.findPose(img,True)
-    lmList, bboxInfo = detector.findPosition(img, bboxWithHands=False)
+    lmList, bboxInfo = detector.findPosition(img, bboxWithHands = False)
+    if (gameState != 0):
+        if (counter > 0):
+            counter -= 1 * deltaTime
+            if (counter < 0):
+                counter = 10
+                gameState += 1
+                if (gameState > 3):
+                    gameState = 0
+                    counter = 0
+                    accuracy = 0.0
 
+        if (gameState == 1):
+            cv2.putText(img, 'GET INTO POSITION', (27, 30), cv2.FONT_HERSHEY_PLAIN, 2, (52, 192, 235), 2, cv2.LINE_AA)
+            cv2.putText(img, str(int(counter)), (165, 70), cv2.FONT_HERSHEY_PLAIN, 3, (52, 192, 235), 2, cv2.LINE_AA)
+        if gameState == 2:
+            cv2.putText(img, 'START COMPRESSIONS', (27, 30), cv2.FONT_HERSHEY_PLAIN, 2, (52, 192, 235), 2, cv2.LINE_AA)
+            cv2.putText(img, str(int(counter)), (165, 70), cv2.FONT_HERSHEY_PLAIN, 3, (52, 192, 235), 2, cv2.LINE_AA)
+        if gameState == 3:
+            cv2.putText(img, f"{didWin}", (27, 30), cv2.FONT_HERSHEY_PLAIN, 2, (52, 192, 235), 2, cv2.LINE_AA)
+            cv2.putText(img, f"Your Accuracy Was: {int(accuracy)}%", (27, 30), cv2.FONT_HERSHEY_PLAIN, 2, (52, 192, 235), 2, cv2.LINE_AA)
+    else:
+        cv2.putText(img, f"Press 'SPACE' to Start", (27, 30), cv2.FONT_HERSHEY_PLAIN, 2, (52, 192, 235), 2, cv2.LINE_AA)
     if lmList:
-        # Example: Using right shoulder (landmark 12) and left shoulder (landmark 11)
-        # You might need to adjust the landmark indices based on your pose model
         right_shoulder = lmList[12]
         left_shoulder = lmList[11]
 
@@ -106,7 +120,6 @@ while True:
 
         if (time.time() > nextHandVel):
             nextHandVel = time.time() + 0.5
-            calculateHandVelocity()
 
         cv2.circle(img, (int(leftHandPos[0]), int(leftHandPos[1])), 10, handsColor, -1)
         cv2.circle(img, (int(rightHandPos[0]), int(rightHandPos[1])), 10, handsColor, -1)
@@ -120,17 +133,23 @@ while True:
         shoulder_mid_x = int((right_shoulder[0] + left_shoulder[0]) / 2)
         shoulder_mid_y = int((right_shoulder[1] + left_shoulder[1]) / 2)
 
-        key = cv2.pollKey()
+        if (gameState == 2):
+            drawHandLine(img)
 
-        if (key == 115):
-            print("Saving Data")
-            limb_save(lmList)
-    cv2.putText(img,str(handVelocity), (10,25),cv2.FONT_HERSHEY_PLAIN,1.5,(0,255,200),2,cv2.LINE_AA)
-    ##img = cv2.resize(img,(800,700))
-    cv2.imshow("Image", img)
-    if cv2.waitKey(1) & 0xFF == 27:
+    key = cv2.pollKey()
+    if (key == 115):
+        print("Saving Data")
+        limb_save(lmList)
+    elif (key == 27):
         break
+    elif (key == 32):
+        if gameState == 0:
+            gameState = 1
+            counter = 5
 
+    #img = cv2.resize(img,(800,700))
+    cv2.imshow("Frame", img)
+    deltaTime = time.time() - currentTime
 
 capture.release()
 cv2.destroyAllWindows()
