@@ -49,8 +49,19 @@ def limb_save(lmList):
         else:
             file.write(str(limb))
     file.close()
+
+
+def distance(bar_positions, hand_positions):
+    distance_left = math.sqrt((bar_positions[0][0] - hand_positions[0][0])**2 + (bar_positions[0][1] - hand_positions[0][1])**2)
+    distance_right = math.sqrt((bar_positions[1][0] - hand_positions[1][0]) ** 2 + (bar_positions[1][1] - hand_positions[1][1]) ** 2)
+    if distance_left >= 40 or distance_right >= 40:
+        return False
+    return True
+
 def drawHandLine(img):
     global handLineOffset
+    global deltaTime
+    global accuracy
     handLineOffset += 23.0 * (deltaTime*25)
     if (handLineOffset > 360):
         handLineOffset = 0
@@ -60,8 +71,12 @@ def drawHandLine(img):
     leftBarPos[0] = 275
     leftBarPos[1] = 225 + pos
     barColor = (255,255,255)
-    if True:
+    if distance((leftBarPos, rightBarPos), (rightHandPos, leftHandPos)):
         barColor = (61,235,69)
+        accuracy +=1 * deltaTime
+        print(accuracy)
+    else:
+        barColor = (0, 0, 255)
 
     cv2.line(img, (100, 225 + (pos)), (275, 225 + (pos)), barColor, 2)
     cv2.circle(img, (int(leftBarPos[0]), int(leftBarPos[1])), 10, barColor, -1)
@@ -94,8 +109,12 @@ while True:
             cv2.putText(img, 'START COMPRESSIONS', (27, 30), cv2.FONT_HERSHEY_PLAIN, 2, (52, 192, 235), 2, cv2.LINE_AA)
             cv2.putText(img, str(int(counter)), (165, 70), cv2.FONT_HERSHEY_PLAIN, 3, (52, 192, 235), 2, cv2.LINE_AA)
         if gameState == 3:
+            if accuracy < 6.5:
+                didWin = "Try Again :/"
+            elif 6.5 < accuracy:
+                didWin = "Congratulations!"
             cv2.putText(img, f"{didWin}", (27, 30), cv2.FONT_HERSHEY_PLAIN, 2, (52, 192, 235), 2, cv2.LINE_AA)
-            cv2.putText(img, f"Your Accuracy Was: {int(accuracy)}%", (27, 30), cv2.FONT_HERSHEY_PLAIN, 2, (52, 192, 235), 2, cv2.LINE_AA)
+            cv2.putText(img, f"Your Accuracy Was: {int(accuracy * 10)}%", (27, 60), cv2.FONT_HERSHEY_PLAIN, 2, (52, 192, 235), 2, cv2.LINE_AA)
     else:
         cv2.putText(img, f"Press 'SPACE' to Start", (27, 30), cv2.FONT_HERSHEY_PLAIN, 2, (52, 192, 235), 2, cv2.LINE_AA)
     if lmList:
