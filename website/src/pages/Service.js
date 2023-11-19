@@ -5,20 +5,6 @@ import childrenImage from '../assets/children.png'; // Adjust the path based on 
 const Service = () => {
     return (
         <>
-            <header>
-                <div id="navbar">
-                    <span id="navbar-name">Name</span>
-                    <nav>
-                        <ul>
-                            <li><a href="#home">Home</a></li>
-                            <li><a href="#service">Service</a></li>
-                            <li><a href="#">About</a></li>
-                            <li><a href="#">Contact</a></li>
-                        </ul>
-                    </nav>
-                </div>
-            </header>
-
             <main>
                 <div className="content-box">
                     <h2>Who needs CPR in your situation?</h2>
