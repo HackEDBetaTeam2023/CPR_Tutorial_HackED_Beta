@@ -11,6 +11,7 @@ import {
 import Service from './pages/Service';
 import Homepage from './pages/Homepage.js';
 import About from './pages/About.js';
+import Contact from './pages/Contact.js';
 import VideoGuide from './pages/VideoGuide.js';
 import PageNotFinished from './pages/PageNotFinished.js';
 
@@ -23,6 +24,7 @@ root.render(
                     <Route path="/" element={<Homepage />}/>
                     <Route path="service/" element={<Service />} />
                     <Route path="about/" element={<About />}/>
+                    <Route path="contact/" element={<Contact />}/>
                     <Route path="service/child-guide/" element={<PageNotFinished />}/>
                     <Route path="service/adult-guide/" element={<VideoGuide />}/>
                 </Route>
