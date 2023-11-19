@@ -10,7 +10,9 @@ import {
 } from "react-router-dom";
 import Service from './pages/Service';
 import Homepage from './pages/Homepage.js';
-
+import About from './pages/About.js';
+import VideoGuide from './pages/VideoGuide.js';
+import PageNotFinished from './pages/PageNotFinished.js';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
@@ -20,6 +22,9 @@ root.render(
                 <Route element={<App />}>
                     <Route path="/" element={<Homepage />}/>
                     <Route path="service/" element={<Service />} />
+                    <Route path="about/" element={<About />}/>
+                    <Route path="service/child-guide/" element={<PageNotFinished />}/>
+                    <Route path="service/adult-guide/" element={<VideoGuide />}/>
                 </Route>
             </Routes>
         </BrowserRouter>
