@@ -11,6 +11,19 @@ detector = PoseDetector()
 capture = cv2.VideoCapture(0)
 targetLimbs = []
 
+# LIMBS TO SHOW FOR DEMO: 25 26 23 24 13 14 11 12 0
+
+def limb_load():
+    file = open('limb_save.txt', 'r')
+    lines = ""
+    for line in file.readlines():
+        positions = line.strip("[]\n").split(', ')
+        for i in range(0,3):
+            positions[i] = int(positions[i])
+        targetLimbs.append(positions)
+    print(targetLimbs)
+
+limb_load()
 
 def limb_save(lmList):
     file = open("limb_save.txt", "w")
