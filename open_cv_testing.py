@@ -169,12 +169,11 @@ while True:
         if gameState == 0:
             gameState = 1
             counter = 5
-
-    #img = cv2.resize(img,(800,700))
-    cv2.imshow("Frame", img)
     screenY = int(cv2.getWindowImageRect('Frame')[2] /2)
     screenX = int(cv2.getWindowImageRect('Frame')[3] /2)
     deltaTime = time.time() - currentTime
+    cv2.imshow("Frame", img)
+
 
 capture.release()
 cv2.destroyAllWindows()
