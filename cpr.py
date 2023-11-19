@@ -80,7 +80,6 @@ def generate_frames():
             continue
 
         img = detector.findPose(img, True)
-        print(screenX)
         lmList, bboxInfo = detector.findPosition(img, bboxWithHands=False)
         if (gameState != 0):
             if (counter > 0):

@@ -14,18 +14,6 @@ didWin = "Congratulations"
 accuracy = 0
 screenX = 1
 screenY = 1
-# LIMBS TO SHOW FOR DEMO: 25 26 23 24 13 14 11 12 0
-
-def limb_load():
-    file = open('limb_save.txt', 'r')
-    for line in file.readlines():
-        positions = line.strip("[]\n").split(', ')
-        for i in range(0,3):
-            positions[i] = int(positions[i])
-        targetLimbs.append(positions)
-    print(targetLimbs)
-
-limb_load()
 
 minHandDistance = 50
 rightHandPos = [0, 0]
@@ -93,7 +81,6 @@ while True:
         continue
 
     img = detector.findPose(img,True)
-    print(screenX)
     lmList, bboxInfo = detector.findPosition(img, bboxWithHands = False)
     if (gameState != 0):
         if (counter > 0):
