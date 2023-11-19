@@ -12,6 +12,8 @@ counter = 5.0
 gameState = 0
 didWin = "Congratulations"
 accuracy = 0
+screenX = 1
+screenY = 1
 # LIMBS TO SHOW FOR DEMO: 25 26 23 24 13 14 11 12 0
 
 def limb_load():
@@ -50,7 +52,6 @@ def limb_save(lmList):
             file.write(str(limb))
     file.close()
 
-
 def distance(bar_positions, hand_positions):
     distance_left = math.sqrt((bar_positions[0][0] - hand_positions[0][0])**2 + (bar_positions[0][1] - hand_positions[0][1])**2)
     distance_right = math.sqrt((bar_positions[1][0] - hand_positions[1][0]) ** 2 + (bar_positions[1][1] - hand_positions[1][1]) ** 2)
@@ -62,14 +63,16 @@ def drawHandLine(img):
     global handLineOffset
     global deltaTime
     global accuracy
+    global screenY
     handLineOffset += 23.0 * (deltaTime*25)
     if (handLineOffset > 360):
         handLineOffset = 0
     pos = int(math.cos(math.radians(handLineOffset)) * 15)
-    rightBarPos[0] = 100
-    rightBarPos[1] = 225 + pos
-    leftBarPos[0] = 275
-    leftBarPos[1] = 225 + pos
+    barY = 250 + pos
+    rightBarPos[0] = screenX - 100
+    rightBarPos[1] = barY
+    leftBarPos[0] = screenX + 100
+    leftBarPos[1] = barY
     barColor = (255,255,255)
     if distance((leftBarPos, rightBarPos), (rightHandPos, leftHandPos)):
         barColor = (61,235,69)
@@ -78,7 +81,7 @@ def drawHandLine(img):
     else:
         barColor = (0, 0, 255)
 
-    cv2.line(img, (100, 225 + (pos)), (275, 225 + (pos)), barColor, 2)
+    cv2.line(img, (screenX - 100, barY), (screenX + 100, barY), barColor, 2)
     cv2.circle(img, (int(leftBarPos[0]), int(leftBarPos[1])), 10, barColor, -1)
     cv2.circle(img, (int(rightBarPos[0]), int(rightBarPos[1])), 10, barColor, -1)
 
@@ -90,6 +93,7 @@ while True:
         continue
 
     img = detector.findPose(img,True)
+    print(screenX)
     lmList, bboxInfo = detector.findPosition(img, bboxWithHands = False)
     if (gameState != 0):
         if (counter > 0):
@@ -168,6 +172,8 @@ while True:
 
     #img = cv2.resize(img,(800,700))
     cv2.imshow("Frame", img)
+    screenY = int(cv2.getWindowImageRect('Frame')[2] /2)
+    screenX = int(cv2.getWindowImageRect('Frame')[3] /2)
     deltaTime = time.time() - currentTime
 
 capture.release()
