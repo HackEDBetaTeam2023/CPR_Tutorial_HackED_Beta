@@ -56,6 +56,10 @@ p, a, li, button, ul {
   text-decoration: none;
 }
 
+a {
+    color: inherit;
+}
+
 a:hover {
   text-decoration: none;
 }
