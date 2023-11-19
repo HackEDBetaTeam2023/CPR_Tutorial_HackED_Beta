@@ -1,6 +1,7 @@
 # Using Opencv to make a better understanding to citizens how to do a CPR in realtime.
+import time
+
 import cv2
-import cvzone.PoseModule
 
 from cvzone.PoseModule import PoseDetector
 
@@ -10,6 +11,7 @@ detector = PoseDetector()
 # open camera
 capture = cv2.VideoCapture(0)
 targetLimbs = []
+
 
 # LIMBS TO SHOW FOR DEMO: 25 26 23 24 13 14 11 12 0
 
@@ -24,6 +26,28 @@ def limb_load():
     print(targetLimbs)
 
 limb_load()
+minHandDistance = 50
+rightHandPos = [0, 0]
+leftHandPos = [0, 0]
+
+nextHandVel = -1.0
+handVelocity = 0.0
+
+prevRightHandPos = [0,0]
+prevLeftHandPos = [0,0]
+def handsTogether() -> bool:
+    dist = math.sqrt((rightHandPos[0] - leftHandPos[0])**2 + (rightHandPos[1] - leftHandPos[1])**2)
+    return dist < minHandDistance
+
+def calculateHandVelocity():
+    global handVelocity
+    global prevLeftHandPos
+    global prevRightHandPos
+    distance_x_r = abs(rightHandPos[0] - prevRightHandPos[0])
+    distance_y_r = abs(rightHandPos[1] - prevRightHandPos[1])
+    handVelocity = distance_y_r/1
+    prevRightHandPos = rightHandPos
+    prevLeftHandPos = leftHandPos
 
 def limb_save(lmList):
     file = open("limb_save.txt", "w")
@@ -45,46 +69,48 @@ while True:
     if lmList:
         # Example: Using right shoulder (landmark 12) and left shoulder (landmark 11)
         # You might need to adjust the landmark indices based on your pose model
-
         right_shoulder = lmList[12]
         left_shoulder = lmList[11]
 
         right_hip = lmList[24]
         left_hip = lmList[23]
         lmList[23] = [30,20,20]
+
+        leftHandPos = [(lmList[16][0] + lmList[18][0] + lmList[20][0] + lmList[22][0])/4,
+                       (lmList[16][1] + lmList[18][1] + lmList[20][1] + lmList[22][1])/4]
+        rightHandPos = [(lmList[15][0] + lmList[17][0] + lmList[19][0] + lmList[21][0])/4,
+                       (lmList[15][1] + lmList[17][1] + lmList[19][1] + lmList[21][1])/4]
+
+        handsColor = (0,0,0)
+
+        if (handsTogether()):
+            handsColor = (102, 255, 51)
+        else:
+            handsColor = (0, 0, 255)
+
+        if (time.time() > nextHandVel):
+            nextHandVel = time.time() + 0.5
+            calculateHandVelocity()
+
+        cv2.circle(img, (int(leftHandPos[0]), int(leftHandPos[1])), 10, handsColor, -1)
+        cv2.circle(img, (int(rightHandPos[0]), int(rightHandPos[1])), 10, handsColor, -1)
+
         shoulder_distance = math.sqrt((right_shoulder[0] - left_shoulder[0]) ** 2 +
                                       (right_shoulder[1] - left_shoulder[1]) ** 2)
 
         hip_distance = math.sqrt((right_hip[0] - left_hip[0]) ** 2 +
                                 (right_hip[1] - left_hip[1]) ** 2)
 
-        circle_radius = int(shoulder_distance / 10)
-        #print(len(lmList))
-        # Estimate heart position (approximate and will vary per individual)
-
         shoulder_mid_x = int((right_shoulder[0] + left_shoulder[0]) / 2)
         shoulder_mid_y = int((right_shoulder[1] + left_shoulder[1]) / 2)
 
-        hip_mid_x = int((right_hip[0] + left_hip[0]) / 2)
-        hip_mid_y = int((right_hip[1] + left_hip[1]) / 2)
-
-        heart_x = shoulder_mid_x + int(shoulder_distance * 0.0)
-        heart_y = shoulder_mid_y + int(shoulder_distance * 0.0)
-
-        heartDist = hip_distance/50
-        new_heart_x = ((1-heartDist)*shoulder_mid_x) + (heartDist*hip_mid_x)
-        new_heart_y = ((1-heartDist)*shoulder_mid_y) + (heartDist*hip_mid_y)
         key = cv2.pollKey()
 
         if (key == 115):
             print("Saving Data")
             limb_save(lmList)
-
-        #print(heart_y)# Adjust 20 as needed
-        line = cv2.line(img, (shoulder_mid_x, shoulder_mid_y), (hip_mid_x, hip_mid_y), (255, 200, 200), 5)
-        # Draw a circle at the estimated heart position
-        cv2.circle(img, (int(new_heart_x), int(new_heart_y)), circle_radius, (0, 0, 255), -1)
-
+    cv2.putText(img,str(handVelocity), (10,25),cv2.FONT_HERSHEY_PLAIN,1.5,(0,255,200),2,cv2.LINE_AA)
+    ##img = cv2.resize(img,(800,700))
     cv2.imshow("Image", img)
     if cv2.waitKey(1) & 0xFF == 27:
         break
