@@ -17,7 +17,6 @@ targetLimbs = []
 
 def limb_load():
     file = open('limb_save.txt', 'r')
-    lines = ""
     for line in file.readlines():
         positions = line.strip("[]\n").split(', ')
         for i in range(0,3):
@@ -26,6 +25,7 @@ def limb_load():
     print(targetLimbs)
 
 limb_load()
+
 minHandDistance = 50
 rightHandPos = [0, 0]
 leftHandPos = [0, 0]
@@ -58,10 +58,26 @@ def limb_save(lmList):
             file.write(str(limb))
     file.close()
 
+def skeleton_user_in_line(limb:tuple[int,(int,int)]):
+
+    error = False
+    for item in limb:
+        index =
+        distance_x = abs(item[0] - lmList[?])
+        distance_y = abs(item[1] - lmList[?])
+        if distance_x > 30 or  distance_y > 30:
+            error = True
+    if error != 0:
+        return False
+    else: return True
+
+
 while True:
     success, img = capture.read()
     if not success:
         continue
+
+    skeleton()
 
     img = detector.findPose(img,True)
     lmList, bboxInfo = detector.findPosition(img, bboxWithHands=False)
