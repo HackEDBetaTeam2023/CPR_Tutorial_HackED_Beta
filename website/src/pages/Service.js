@@ -5,9 +5,6 @@ import VideoGuide from './VideoGuide.js';
 import { Link, useMatch, Outlet } from 'react-router-dom';
 
 const Service = () => {
-    const matchInfo = useMatch('');
-    console.log(matchInfo);
-
     return (
         <section className="homepage">
             <div className="content-box">
