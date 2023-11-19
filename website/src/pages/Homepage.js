@@ -1,6 +1,6 @@
 function Homepage() {
     return (
-        <h1>This is the main page!</h1>
+        <h2>This is the main page!</h2>
     )
 }
 
