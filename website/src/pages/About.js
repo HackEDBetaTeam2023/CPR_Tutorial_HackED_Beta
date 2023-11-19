@@ -37,11 +37,11 @@ export const About = () => {
                 <h1>CPR: Life Saving Techniques</h1>
             </header>
 
-            <section className="about-section">
+            <div className="about-section">
                 <h2>What is CPR?</h2>
                 <img src={cprDemo} alt="CPR Demonstration" />
                     <p>CPR stands for Cardiopulmonary Resuscitation. It is a lifesaving technique used in emergencies...</p>
-            </section>
+            </div>
 
             <h2>Understanding the importance of CPR</h2>
             <p>Immediate Response</p>

@@ -65,7 +65,10 @@ p, a, li, button, ul {
   padding: 0;
   line-height: normal;
   text-decoration: none;
-  color: inherit;
+}
+
+a {
+    color: inherit;
 }
 
 a:hover {
