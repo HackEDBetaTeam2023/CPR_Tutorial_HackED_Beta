@@ -1,6 +1,7 @@
 header, #navbar {
     width: 100%;
     height: 60px;
+    flex: 0 0 auto;
 }
 
 #navbar {
