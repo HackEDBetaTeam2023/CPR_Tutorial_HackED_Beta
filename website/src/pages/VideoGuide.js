@@ -1,6 +1,9 @@
 import React from 'react';
 
 const VideoGuide = () => {
+    const onClick = () => {
+        fetch("http://localhost:5000/poll_key");
+    }
     return (
         <div className="video_guide">
             <h2>Adult cardiopulmonary resuscitation (CPR)</h2>
@@ -14,6 +17,7 @@ const VideoGuide = () => {
             </p>
             <h1>OpenCV Project</h1>
             <img src="http://127.0.0.1:5000/video_feed" style={{ width: '50%' }} alt="Video Feed" />
+            <button type="submit" onClick={onClick}>Start!</button>
         </div>
     )
 }

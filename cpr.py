@@ -19,6 +19,9 @@ didWin = "Congratulations"
 accuracy = 0
 screenX = 1
 screenY = 1
+key = [0]
+def changeKey(key):
+    key.append(32)
 
 minHandDistance = 50
 rightHandPos = [0, 0]
@@ -71,7 +74,7 @@ def drawHandLine(img):
 
 #cv2.namedWindow('Frame', cv2.WINDOW_NORMAL)
 
-def generate_frames():
+def generate_frames(key):
     global gameState, counter, deltaTime, screenX, accuracy, didWin, nextHandVel
     while True:
         currentTime = time.time()
@@ -151,21 +154,25 @@ def generate_frames():
             if (gameState == 2):
                 drawHandLine(img)
 
-        key = cv2.pollKey()
-        if (key == 27):
+        # key = cv2.pollKey()
+
+        if (key[-1] == 27):
             break
-        elif (key == 32):
+        elif (key[-1] == 32):
             if gameState == 0:
                 gameState = 1
                 counter = 5
-        screenY = int(cv2.getWindowImageRect('Frame')[2] / 2)
-        screenX = int(cv2.getWindowImageRect('Frame')[3] / 2)
+        # screenX = int(cv2.getWindowImageRect('Frame')[3] / 2)
+        # screenY = int(cv2.getWindowImageRect('Frame')[2] / 2)
+        screenX = 541
+        screenY = 304
         deltaTime = time.time() - currentTime
 
         _, buffer = cv2.imencode('.jpg', img)
         frame = buffer.tobytes()
         yield (b'--frame\r\n'
                b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
+    key = [0]
 
 @app.route('/')
 def index():
@@ -173,7 +180,16 @@ def index():
 
 @app.route('/video_feed')
 def video_feed():
-    return Response(generate_frames(), mimetype='multipart/x-mixed-replace; boundary=frame')
+    return Response(generate_frames(key), mimetype='multipart/x-mixed-replace; boundary=frame')
+
+@app.route('/poll_key')
+def poll_key():
+    changeKey(key)
+    return Response()
+
+@app.errorhandler(404)
+def not_found(e):
+    return app.send_static_file('index.html')
 
 if __name__ == "__main__":
     app.run(debug=True)
